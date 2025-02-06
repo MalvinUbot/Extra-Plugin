@@ -94,7 +94,7 @@ async def ctest(_, message):
             img2 = Image.open(p2)
 
             background_image_path = download_image(
-                "https://telegra.ph/file/96f36504f149e5680741a.jpg", cppic_path
+                "https://te.legra.ph/file/d1231b04cde4b1e31cef8-83b917381561a4f48a.jpg", cppic_path
             )
             img = Image.open(background_image_path)
 
