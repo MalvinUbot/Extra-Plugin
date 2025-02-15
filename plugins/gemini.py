@@ -1,15 +1,31 @@
 import requests
-from ChampuAPI import api
 from pyrogram import filters
 from pyrogram.enums import ChatAction
 from ChampuMusic import app
 
+BASE_API_URL = "https://amanshah.serv00.net/gemini?question="
 
-@app.on_message(filters.command(["gemini"]))
-async def gemini_handler(client, message):
+async def fetch_response(user_input, message):
+    try:
+        api_url = f"{BASE_API_URL}{user_input}"
+        response = requests.get(api_url)
+        if response.status_code == 200:
+            data = response.text
+            if data:
+                await message.reply_text(data, quote=True)
+            else:
+                await message.reply_text("No response received. Please try again.", quote=True)
+        else:
+            await message.reply_text(f"Error: Unable to fetch data. (Status Code: {response.status_code})", quote=True)
+    except requests.exceptions.RequestException as e:
+        await message.reply_text(f"Request failed: {e}", quote=True)
+
+@app.on_message(filters.command(["gemini", "ai", "how", "ask"]))
+async def command_handler(client, message):
     await app.send_chat_action(message.chat.id, ChatAction.TYPING)
+
     if (
-        message.text.startswith(f"/gemini@{app.username}")
+        message.text.startswith(f"/{message.command[0]}@{app.username}")
         and len(message.text.split(" ", 1)) > 1
     ):
         user_input = message.text.split(" ", 1)[1]
@@ -19,16 +35,9 @@ async def gemini_handler(client, message):
         if len(message.command) > 1:
             user_input = " ".join(message.command[1:])
         else:
-            await message.reply_text("ᴇxᴀᴍᴘʟᴇ :- `/gemini who is lord ram`")
+            await message.reply_text(
+                f"ᴇxᴀᴍᴘʟᴇ :- `/{message.command[0]} who is lord ram`"
+            )
             return
 
-    try:
-        response = api.gemini(user_input)
-        await app.send_chat_action(message.chat.id, ChatAction.TYPING)
-        x = response["results"]
-        if x:
-            await message.reply_text(x, quote=True)
-        else:
-            await message.reply_text("sᴏʀʀʏ sɪʀ! ᴘʟᴇᴀsᴇ Tʀʏ ᴀɢᴀɪɴ")
-    except requests.exceptions.RequestException as e:
-        pass
+    await fetch_response(user_input, message)
