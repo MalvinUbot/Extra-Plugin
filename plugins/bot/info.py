@@ -201,12 +201,8 @@ async def userinfo(_, message):
             if user.photo:
                 # User has a profile photo
                 photo = await app.download_media(user.photo.big_file_id)
-                welcome_photo = await get_userinfo_img(
-                    bg_path=bg_path,
-                    font_path=font_path,
-                    user_id=user.id,
-                    profile_path=photo,
-                )
+                welcome_photo = random.choice(random_photo)
+                
             else:
                 # User doesn't have a profile photo, use random_photo directly
                 welcome_photo = random.choice(random_photo)
